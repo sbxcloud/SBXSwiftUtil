@@ -23,12 +23,18 @@ struct SBXDataUtil {
     }
     
     
-    static func doRequest(method: ApiMethod, host:String, path: String, body: Data?, params: [String: String]?, headers: [String: String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> ()) {
+    static func doRequest(method: ApiMethod, host:String, port:Int?, secure:Bool = true ,path: String, body: Data?, params: [String: String]?, headers: [String: String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> ()) {
         
         var url = URLComponents()
         url.host = host
+        
+        if let port = port {
+            url.port = port
+        }
+        
+        
         url.path = path
-        url.scheme = "https"
+        url.scheme = secure ? "https":"http"
         
         if let params = params {
             url.queryItems = params.map {
@@ -72,7 +78,7 @@ struct SBXDataUtil {
             return
         }
         
-        doRequest(method: .POST, host:SBXURL,path: "/api/data/v1/row/find", body: postData, params: nil, headers: headers) {
+        doRequest(method: .POST, host:SBXURL,port:nil, secure:true,path: "/api/data/v1/row/find", body: postData, params: nil, headers: headers) {
             (data, response, err) in
             
             guard err == nil else{
