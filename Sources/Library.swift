@@ -4,7 +4,7 @@ import Result
 let SBXURL = "sbxcloud.com"
 
 
-struct SBXDataUtil {
+public struct SBXDataUtil {
     
     enum ApiMethod: String {
         case GET = "GET"
