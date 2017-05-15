@@ -23,7 +23,7 @@ public struct SBXDataUtil {
     }
     
     
-    static func doRequest(method: ApiMethod, host:String, port:Int?, secure:Bool = true ,path: String, body: Data?, params: [String: String]?, headers: [String: String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> ()) {
+    public static func doRequest(method: ApiMethod, host:String, port:Int?, secure:Bool = true ,path: String, body: Data?, params: [String: String]?, headers: [String: String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> ()) {
         
         var url = URLComponents()
         url.host = host
