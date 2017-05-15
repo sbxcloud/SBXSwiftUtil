@@ -23,7 +23,7 @@ public struct SBXDataUtil {
     }
     
     
-    public static func doRequest(method: ApiMethod, host:String, port:Int?, secure:Bool = true ,path: String, body: Data?, params: [String: String]?, headers: [String: String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> ()) {
+    public static func getJSON(method: ApiMethod, host:String, port:Int?, secure:Bool = true ,path: String, body: Data?, params: [String: String]?, headers: [String: String], completionHandler: @escaping (Result<[String:Any], SBXDataError>) -> ()) {
         
         var url = URLComponents()
         url.host = host
@@ -43,7 +43,7 @@ public struct SBXDataUtil {
         }
         
         guard let endpoint = url.url else {
-            completionHandler(nil, nil, SBXDataError.NoData)
+            completionHandler(.failure(.NoData))
             return
         }
         
@@ -59,7 +59,34 @@ public struct SBXDataUtil {
         
         clientReq.addValue("application/json", forHTTPHeaderField: "accept")
         clientReq.httpMethod = method.rawValue
-        URLSession.shared.dataTask(with: clientReq, completionHandler: completionHandler).resume()
+        URLSession.shared.dataTask(with: clientReq){
+            (data, res, err) in
+            
+            
+            guard err == nil else{
+                completionHandler(.failure(.CustomError(err!)))
+                return
+            }
+            
+            do {
+                
+                guard let data = data else {
+                    completionHandler(.failure(.NoData))
+                    return
+                }
+                
+                guard let json:[String:Any] =  try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    completionHandler(.failure(.ConversionFailed))
+                    return
+                }
+                
+                // TODO: improve this to link fetched results!
+                completionHandler(.success(json))
+                
+            }catch {
+                completionHandler(.failure(.CustomError(error)))
+            }
+        }.resume()
     }
     
     static func find(token:String, appKey:String, query:[String:Any], completionHandler: @escaping (Result<[String:Any],SBXDataError>) -> () ){
@@ -78,33 +105,7 @@ public struct SBXDataUtil {
             return
         }
         
-        doRequest(method: .POST, host:SBXURL,port:nil, secure:true,path: "/api/data/v1/row/find", body: postData, params: nil, headers: headers) {
-            (data, response, err) in
-            
-            guard err == nil else{
-                completionHandler(.failure(.CustomError(err!)))
-                return
-            }
-            
-            do {
-                
-                guard let data = data else {
-                    completionHandler(.failure(.NoData))
-                    return
-                }
-                
-                guard let json =  try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                    completionHandler(.failure(.ConversionFailed))
-                    return
-                }
-                
-                // TODO: improve this to link fetched results!
-                completionHandler(.success(json))
-                
-            }catch {
-                completionHandler(.failure(.CustomError(error)))
-            }
-        }
+        getJSON(method: .POST, host:SBXURL,port:nil, secure:true,path: "/api/data/v1/row/find", body: postData, params: nil, headers: headers, completionHandler:completionHandler)
         
     
     }
