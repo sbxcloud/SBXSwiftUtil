@@ -6,14 +6,14 @@ let SBXURL = "sbxcloud.com"
 
 public struct SBXDataUtil {
     
-    enum ApiMethod: String {
+    public enum ApiMethod: String {
         case GET = "GET"
         case POST = "POST"
         case PUT = "PUT"
     }
     
     
-    enum SBXDataError: Error {
+    public enum SBXDataError: Error {
         case NoData
         case InvalidJSON
         case ConversionFailed
@@ -62,7 +62,7 @@ public struct SBXDataUtil {
         URLSession.shared.dataTask(with: clientReq, completionHandler: completionHandler).resume()
     }
     
-    static func find(token:String, appKey:String, query:[String:Any], completionHandler: @escaping (Result<[String:Any],SBXDataUtil.SBXDataError>) -> () ){
+    static func find(token:String, appKey:String, query:[String:Any], completionHandler: @escaping (Result<[String:Any],SBXDataError>) -> () ){
         
         let headers = [
             "accept-language": "es,en;q=0.8",
