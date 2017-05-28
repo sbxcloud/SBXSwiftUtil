@@ -1,7 +1,6 @@
 
 import Foundation
 import Result
-let SBXURL = "sbxcloud.com"
 
 
 public struct SBXDataUtil {
@@ -59,7 +58,8 @@ public struct SBXDataUtil {
         
         clientReq.addValue("application/json", forHTTPHeaderField: "accept")
         clientReq.httpMethod = method.rawValue
-        URLSession.shared.dataTask(with: clientReq){
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        session.dataTask(with: clientReq){
             (data, res, err) in
             
             
@@ -80,7 +80,6 @@ public struct SBXDataUtil {
                     return
                 }
                 
-                // TODO: improve this to link fetched results!
                 completionHandler(.success(json))
                 
             }catch {
@@ -88,28 +87,6 @@ public struct SBXDataUtil {
             }
         }.resume()
     }
-    
-    static func find(token:String, appKey:String, query:[String:Any], completionHandler: @escaping (Result<[String:Any],SBXDataError>) -> () ){
-        
-        let headers = [
-            "accept-language": "es,en;q=0.8",
-            "Authorization": "Bearer \(token)",
-            "App-Key": "Bearer \(appKey)",
-            "content-type": "application/json;charset=UTF-8",
-            "accept": "application/json",
-            "cache-control": "no-cache"
-        ]
-        
-        guard  let postData = try? JSONSerialization.data(withJSONObject: query, options: .prettyPrinted) else {
-            completionHandler(.failure(.InvalidJSON))
-            return
-        }
-        
-        getJSON(method: .POST, host:SBXURL,port:nil, secure:true,path: "/api/data/v1/row/find", body: postData, params: nil, headers: headers, completionHandler:completionHandler)
-        
-    
-    }
-
 
 
 }
